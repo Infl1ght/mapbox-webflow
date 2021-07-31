@@ -1,5 +1,9 @@
 var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
-  var abbreviateNumber = (value) => {
+  var abbreviateNumber = (valueUnparsed) => {
+    var value = valueUnparsed;
+    if(typeof valueUnparsed === 'string') {
+      value = parseFloat(valueUnparsed.replace(/,/g, ''));
+    }
     var newValue = value;
     if (value >= 1000) {
         var suffixes = ["", "K", "M", "B","T"];
@@ -30,7 +34,6 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
           "price": abbreviateNumber(mapObject.price),
         }
       });
-      console.log(abbreviateNumber(mapObject.price));
     }
     return { type: 'FeatureCollection', features: featureCollection };
   }
