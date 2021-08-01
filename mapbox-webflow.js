@@ -31,7 +31,10 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
           "coordinates": [mapObject.lat, mapObject.long]
         },
         "properties": {
-          "price": abbreviateNumber(mapObject.price),
+          "price": mapObject.price,
+          "priceShort": abbreviateNumber(mapObject.price),
+          'description':
+          `<div onclick="window.open('${mapObject.objectUrl}');" style="cursor: pointer;"><p><img src="${mapObject.imageUrl}" width="200" /></p><strong>${mapObject.address}</strong><div>Price: ${mapObject.price}</div></div>`,
         }
       });
     }
@@ -105,7 +108,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
         'icon-size': 0.7,
         'icon-anchor': 'bottom',
         'icon-allow-overlap': true,
-        'text-field': ['get', 'price'],
+        'text-field': ['get', 'priceShort'],
         'text-font': [
           'Open Sans Semibold',
           'Arial Unicode MS Bold'
@@ -135,6 +138,19 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
       map.getCanvas().style.cursor = '';
       map.setLayoutProperty('items', 'icon-size', 0.7);
       map.setLayoutProperty('items', 'text-size', 12);
+    });
+    map.on('click', 'items', (e) => {
+      var coordinates = e.features[0].geometry.coordinates.slice();
+      var description = e.features[0].properties.description;
+       
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+       
+      new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(description)
+        .addTo(map);
     });
     map.addLayer({
       id: 'items-unvisible',
