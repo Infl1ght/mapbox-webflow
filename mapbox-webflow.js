@@ -92,7 +92,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
       },
     });
     
-    let img = new Image(120, 72);
+    let img = new Image(50, 30);
     img.onload = () => map.addImage('marker-with-price', img);
     img.src = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAgMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTSAxLjUxMzAwMDAxMTQ0NDA5MTggMSBMIDEuMzQ3MDAwMDAyODYxMDIzIDI0Ljg3NDAwMDU0OTMxNjQwNiBMIDIyLjEzMjk5OTQyMDE2NjAxNiAyNC44NzQwMDA1NDkzMTY0MDYgTCAyNS4xMzgwMDA0ODgyODEyNSAyOS4yMTUwMDAxNTI1ODc4OSBMIDI2Ljk3NDAwMDkzMDc4NjEzMyAyNC42MjQwMDA1NDkzMTY0MDYgTCA0OC43NjIwMDEwMzc1OTc2NTYgMjQuNzA3MDAwNzMyNDIxODc1IEwgNDguNjc5MDAwODU0NDkyMTkgMS4xNjYwMDAwMDg1ODMwNjg4IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwLCAwLCAwKTsgZmlsbDogcmdiKDY4LCAxMDYsIDc2KTsiLz4KPC9zdmc+";
     map.addLayer({
@@ -102,7 +102,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
       source: 'objects',
       layout: {
         'icon-image': 'marker-with-price',
-        'icon-size': 0.3,
+        'icon-size': 0.7,
         'icon-anchor': 'bottom',
         'icon-allow-overlap': true,
         'text-field': ['get', 'price'],
@@ -117,6 +117,24 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
       paint: {
         "text-color": "#ffffff"
       }
+    });
+    map.on('mouseenter', 'items', (e) => {
+      map.getCanvas().style.cursor = 'pointer';
+      map.setLayoutProperty(
+        'items', 
+        'icon-size', 
+        ['match', ['id'], e.features[0].id, 0.8, 0.7],
+      );
+      map.setLayoutProperty(
+        'items', 
+        'text-size', 
+        ['match', ['id'], e.features[0].id, 13, 12],
+      );
+    });
+    map.on('mouseleave', 'items', (e) => {
+      map.getCanvas().style.cursor = '';
+      map.setLayoutProperty('items', 'icon-size', 0.7);
+      map.setLayoutProperty('items', 'text-size', 12);
     });
     map.addLayer({
       id: 'items-unvisible',
