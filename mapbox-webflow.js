@@ -179,14 +179,13 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
   };
   map.on('load', onMapLoaded);
 
-  function intersectRect(r1, r2) {
-    return !(
-      r2.left > r1.right ||
-      r2.right < r1.left ||
-      r2.top > r1.bottom ||
-      r2.bottom < r1.top
-    );
-  };
+  function centerMap(objects) {
+    const bounds = new mapboxgl.LngLatBounds();
+    objects.forEach((object) => {
+      bounds.extend([object.lat, object.long]);
+    });
+    map.fitBounds(bounds, { padding: 150, pitch: 0, bearing: 0 });
+  }
 
   function getVisibleMarkers() {
     if(!map.loaded()) {
@@ -224,6 +223,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
       map.getSource('objects').setData(coordsToFeatureCollection(newList));
       map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(newList));
       renderedObjectsChangedCallback(visibleMarkersIds);
+      centerMap(newList);
     }
 
     if(!map.loaded()) {
