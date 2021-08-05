@@ -43,6 +43,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
 
 
   mapboxgl.accessToken = "pk.eyJ1IjoiaW5mbDFnaHQiLCJhIjoiY2tybHd3aG54MWdnMTJxcHY0ZXJ3bzBkZyJ9.8eEZH-KSJ9FVynPwjpet_g";
+  
   var map = new mapboxgl.Map({
     container: "map",
     style: "mapbox://styles/mapbox/streets-v11",
@@ -180,6 +181,9 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
   map.on('load', onMapLoaded);
 
   function centerMap(objects) {
+    if(!objects.length) {
+      return;
+    }
     const bounds = new mapboxgl.LngLatBounds();
     objects.forEach((object) => {
       bounds.extend([object.lat, object.long]);
