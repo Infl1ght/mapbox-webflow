@@ -220,10 +220,11 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
 
   var changeObjectsList = function(newList) {
     var setSourceData = () => {
-      map.getSource('objects').setData(coordsToFeatureCollection(newList));
-      map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(newList));
+      newObjectsListFiltered = newList.filter((mapObject) => mapObject.lat && mapObject.long);
+      map.getSource('objects').setData(coordsToFeatureCollection(newObjectsListFiltered));
+      map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(newObjectsListFiltered));
       renderedObjectsChangedCallback(visibleMarkersIds);
-      centerMap(newList);
+      centerMap(newObjectsListFiltered);
     }
 
     if(!map.loaded()) {
