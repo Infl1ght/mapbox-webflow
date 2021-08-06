@@ -34,7 +34,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
           "price": mapObject.price,
           "priceShort": abbreviateNumber(mapObject.price),
           'description':
-          `<div onclick="window.open('${mapObject.objectUrl}');" style="cursor: pointer;"><p><img src="${mapObject.imageUrl}" width="200" /></p><strong>${mapObject.address}</strong><div>Price: ${mapObject.price}</div></div>`,
+          `<div onclick="window.open('${mapObject.objectUrl}');" style="cursor: pointer; display: flex; font-size: 15px;"><div><img src="${mapObject.imageUrl}" width="200" /></div><div style="display: flex; flex-direction: column; justify-content: space-between; padding: 5px; min-width: 100px;"><strong>${mapObject.address}</strong><div>₪${mapObject.price}</div></div></div>`,
         }
       });
     }
@@ -149,7 +149,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
        
-      new mapboxgl.Popup()
+      new mapboxgl.Popup({ anchor: 'left', closeButton: false })
         .setLngLat(coordinates)
         .setHTML(description)
         .addTo(map);
@@ -177,6 +177,55 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
           });
         },
       );
+    });
+    map.on('mouseenter', 'clusters', (e) => {
+      map.getCanvas().style.cursor = 'pointer';
+      var features = map.queryRenderedFeatures(e.point, {
+        layers: ['clusters'],
+      });
+      var clusterId = features[0].properties.cluster_id;
+      map.setPaintProperty(
+        'clusters', 
+        'circle-radius', 
+        ['match', ['id'], clusterId, 
+          [
+            'step',
+            ['get', 'point_count'],
+            10,
+            0, 13,
+            5, 15,
+            25, 17,
+            125, 19,
+          ],
+          [
+            'step',
+            ['get', 'point_count'],
+            10,
+            0, 12,
+            5, 14,
+            25, 16,
+            125, 18,
+          ]
+        ],
+      );
+      map.setLayoutProperty('cluster-count', 'text-size', ['match', ['id'], clusterId, 16, 14]);  
+    });
+    map.on('mouseleave', 'clusters', (e) => {
+      map.getCanvas().style.cursor = '';
+      map.setPaintProperty(
+        'clusters', 
+        'circle-radius', 
+        [
+          'step',
+          ['get', 'point_count'],
+          10,
+          0, 12,
+          5, 14,
+          25, 16,
+          125, 18,
+        ]
+      );
+      map.setLayoutProperty('cluster-count', 'text-size', 14);
     });
   };
   map.on('load', onMapLoaded);
