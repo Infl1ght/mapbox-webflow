@@ -41,8 +41,8 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
     return { type: 'FeatureCollection', features: featureCollection };
   }
 
-
   mapboxgl.accessToken = "pk.eyJ1IjoiaW5mbDFnaHQiLCJhIjoiY2tybHd3aG54MWdnMTJxcHY0ZXJ3bzBkZyJ9.8eEZH-KSJ9FVynPwjpet_g";
+  mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js');
   
   var map = new mapboxgl.Map({
     container: "map",
@@ -52,6 +52,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
   });
 
   var onMapLoaded = () => {
+    map.addControl(new MapboxLanguage());
     map.addSource('objects', {
       type: 'geojson',
       data: coordsToFeatureCollection(objectsToShow),
