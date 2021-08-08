@@ -164,7 +164,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
        
-      new mapboxgl.Popup({ anchor: 'left', closeButton: false, offset: [25, 0] })
+      new mapboxgl.Popup({ anchor: 'left', closeButton: false, offset: [25, 0], maxWidth: 345 })
         .setLngLat(coordinates)
         .setHTML(description)
         .addTo(map);
