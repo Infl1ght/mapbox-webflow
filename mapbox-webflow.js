@@ -47,7 +47,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
                 <div style="font-size: 14px; padding-top: 5px;">
                   <div style="direction: rtl; display: inline-block;">${mapObject.bedrooms ? '| ' + mapObject.bedrooms + ' חד׳' : ''}</div>
                   <div style="direction: ltr; display: inline-block;">${mapObject.bathrooms ? mapObject.bathrooms + ' BA | ': ''}</div>
-                  <div style="direction: ltr; display: inline-block;">${mapObject.squareMeters ? mapObject.squareMeters + ' SM' : '' }</div>
+                  <div style="direction: rtl; display: inline-block;">${mapObject.squareMeters ? mapObject.squareMeters + ' מ״ר' : '' }</div>
                 </div>
               </div>
             </div>
@@ -61,6 +61,43 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
   mapboxgl.accessToken = "pk.eyJ1IjoiaW5mbDFnaHQiLCJhIjoiY2tybHd3aG54MWdnMTJxcHY0ZXJ3bzBkZyJ9.8eEZH-KSJ9FVynPwjpet_g";
   mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js');
   
+  var CLUSTER_RADIUS_NORMAL = [
+    'step',
+    ['get', 'point_count'],
+    10,
+    0, 12,
+    5, 14,
+    25, 16,
+    125, 18,
+  ];
+  var CLUSTER_RADIUS_HOVER = [
+    'step',
+    ['get', 'point_count'],
+    10,
+    0, 13,
+    5, 15,
+    25, 17,
+    125, 19,
+  ];
+  var CLUSTER_SHADOW_RADIUS_NORMAL = [
+    'step',
+    ['get', 'point_count'],
+    10,
+    0, 16,
+    5, 21,
+    25, 24,
+    125, 27,
+  ];
+  var CLUSTER_SHADOW_RADIUS_HOVER = [
+    'step',
+    ['get', 'point_count'],
+    10,
+    0, 18,
+    5, 23,
+    25, 26,
+    125, 29,
+  ];
+
   var map = new mapboxgl.Map({
     container: "map",
     style: "mapbox://styles/mapbox/streets-v11",
@@ -89,17 +126,20 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
       filter: ['has', 'point_count'],
       paint: {
         'circle-color': 'rgb(0, 100, 229)',
-        'circle-radius': [
-          'step',
-          ['get', 'point_count'],
-          10,
-          0, 12,
-          5, 14,
-          25, 16,
-          125, 18,
-        ],
+        'circle-radius': CLUSTER_RADIUS_NORMAL,
       },
-    });    
+    });
+    map.addLayer({
+      id: 'clusters-shadow',
+      type: 'circle',
+      source: 'objects',
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': 'rgb(0, 100, 229)',
+        'circle-radius': CLUSTER_SHADOW_RADIUS_NORMAL,
+        'circle-opacity': 0.2
+      },
+    }); 
     map.addLayer({
       id: 'cluster-count',
       type: 'symbol',
@@ -107,7 +147,8 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
       filter: ['has', 'point_count'],
       layout: {
         'text-field': '{point_count_abbreviated}',
-        'text-size': 14,
+        'text-size': 13,
+        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
       },
       paint: {
         'text-color': '#FFFFFF',
@@ -205,44 +246,33 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
         'clusters', 
         'circle-radius', 
         ['match', ['id'], clusterId, 
-          [
-            'step',
-            ['get', 'point_count'],
-            10,
-            0, 13,
-            5, 15,
-            25, 17,
-            125, 19,
-          ],
-          [
-            'step',
-            ['get', 'point_count'],
-            10,
-            0, 12,
-            5, 14,
-            25, 16,
-            125, 18,
-          ]
+          CLUSTER_RADIUS_HOVER,
+          CLUSTER_RADIUS_NORMAL
         ],
       );
-      map.setLayoutProperty('cluster-count', 'text-size', ['match', ['id'], clusterId, 16, 14]);  
+      map.setPaintProperty(
+        'clusters-shadow', 
+        'circle-radius', 
+        ['match', ['id'], clusterId, 
+          CLUSTER_SHADOW_RADIUS_HOVER,
+          CLUSTER_SHADOW_RADIUS_NORMAL
+        ],
+      );
+      map.setLayoutProperty('cluster-count', 'text-size', ['match', ['id'], clusterId, 14, 12]);  
     });
     map.on('mouseleave', 'clusters', (e) => {
       map.getCanvas().style.cursor = '';
       map.setPaintProperty(
         'clusters', 
         'circle-radius', 
-        [
-          'step',
-          ['get', 'point_count'],
-          10,
-          0, 12,
-          5, 14,
-          25, 16,
-          125, 18,
-        ]
+        CLUSTER_RADIUS_NORMAL
       );
-      map.setLayoutProperty('cluster-count', 'text-size', 14);
+      map.setPaintProperty(
+        'clusters-shadow', 
+        'circle-radius', 
+         CLUSTER_SHADOW_RADIUS_NORMAL
+      );
+      map.setLayoutProperty('cluster-count', 'text-size', 12);
     });
   };
   map.on('load', onMapLoaded);
