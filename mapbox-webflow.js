@@ -34,7 +34,22 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
           "price": mapObject.price,
           "priceShort": abbreviateNumber(mapObject.price),
           'description':
-          `<div onclick="window.open('${mapObject.objectUrl}');" style="cursor: pointer; display: flex; font-size: 15px;"><div><img src="${mapObject.imageUrl}" width="200" /></div><div style="display: flex; flex-direction: column; justify-content: space-between; padding: 5px; min-width: 100px;"><strong>${mapObject.address}</strong><div>₪${mapObject.price}</div></div></div>`,
+          `<div onclick="window.open('${mapObject.objectUrl}');" style="cursor: pointer; display: flex; font-size: 16px;">
+            <div>
+              <img src="${mapObject.imageUrl}" style="object-fit: cover; width: 110px; height: 89px;" />
+            </div>
+            <div style="display: flex; flex-direction: column; padding: 5px; padding-left: 10px; width: 200px;">
+              <div style="height: 40px; font-weight: 600;">
+                ${mapObject.address}
+              </div>
+              <div>
+                <div>₪${mapObject.price}</div>
+                <div style="font-size: 14px; padding-top: 5px;">
+                  ${mapObject.bedrooms ? mapObject.bedrooms +  'BD |' : ''} ${mapObject.bathrooms ? mapObject.bathrooms + ' BA | ': ''}  ${mapObject.priceForSqM ? mapObject.priceForSqM + ' SM' : ''} 
+                </div>
+              </div>
+            </div>
+          </div>`,
         }
       });
     }
@@ -149,7 +164,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
        
-      new mapboxgl.Popup({ anchor: 'left', closeButton: false })
+      new mapboxgl.Popup({ anchor: 'left', closeButton: false, offset: [25, 0] })
         .setLngLat(coordinates)
         .setHTML(description)
         .addTo(map);

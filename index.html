@@ -2,6 +2,7 @@
 <body>
 <div id='map' style='width: 100%; height: 100%;'></div>
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+<link href='./mapbox-webflow.css' rel='stylesheet' />
 <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
 <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-language/v0.10.1/mapbox-gl-language.js'></script>
 <script src='./mapbox-webflow.js'></script>
@@ -21,11 +22,11 @@
     });
   });
   var newCoords = [
-    {lat: 34.13379, long: 31.160781, slug: 1, price: '2,324,423', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254' },
-    {lat: 34.282088, long: 32.257386, slug: 2, price: '3324423', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254'},
-    {lat: 34.385049, long: 31.355724, slug: 3, price: '4324423', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254'},
+    {lat: 34.13379, long: 31.160781, slug: 1, price: '2,324,423', priceForSqM: '34', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3 },
+    {lat: 34.282088, long: 32.257386, slug: 2, price: '3324423', priceForSqM: '37', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2 },
+    {lat: 34.385049, long: 31.355724, slug: 3, price: '4324423', priceForSqM: '38', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bathrooms: 3},
     {lat: 34.414208, long: 31.408244, slug: 4, price: '5324423', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254'},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254'},
+    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, priceForSqM: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
     {slug: 6, price: 6324423, imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254'},
   ];
   globalMap.changeObjectsList(newCoords);
