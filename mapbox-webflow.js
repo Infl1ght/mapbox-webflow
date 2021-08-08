@@ -45,7 +45,9 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
               <div>
                 <div>₪${mapObject.price}</div>
                 <div style="font-size: 14px; padding-top: 5px;">
-                  ${mapObject.bedrooms ? mapObject.bedrooms +  'BD |' : ''} ${mapObject.bathrooms ? mapObject.bathrooms + ' BA | ': ''}  ${mapObject.priceForSqM ? mapObject.priceForSqM + ' SM' : ''} 
+                  <div style="direction: rtl; display: inline-block;">${mapObject.bedrooms ? '| ' + mapObject.bedrooms + ' חד׳' : ''}</div>
+                  <div style="direction: ltr; display: inline-block;">${mapObject.bathrooms ? mapObject.bathrooms + ' BA | ': ''}</div>
+                  <div style="direction: ltr; display: inline-block;">${mapObject.squareMeters ? mapObject.squareMeters + ' SM' : '' }</div>
                 </div>
               </div>
             </div>
