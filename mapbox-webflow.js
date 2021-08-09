@@ -58,7 +58,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
     return { type: 'FeatureCollection', features: featureCollection };
   }
 
-  mapboxgl.accessToken = "pk.eyJ1IjoiaW5mbDFnaHQiLCJhIjoiY2tybHd3aG54MWdnMTJxcHY0ZXJ3bzBkZyJ9.8eEZH-KSJ9FVynPwjpet_g";
+  mapboxgl.accessToken = "pk.eyJ1IjoiZ2V0cGxhY2UiLCJhIjoiY2tzNGk5dHZ5MjUzODJ2bXNlbmVwaTFxdiJ9.FjA8XYS_TGYbv_UFriZ_ZA";
   mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js');
   
   var CLUSTER_RADIUS_NORMAL = [
