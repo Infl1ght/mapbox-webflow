@@ -58,7 +58,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
     return { type: 'FeatureCollection', features: featureCollection };
   }
 
-  mapboxgl.accessToken = "pk.eyJ1IjoiZ2V0cGxhY2UiLCJhIjoiY2tzNGk5dHZ5MjUzODJ2bXNlbmVwaTFxdiJ9.FjA8XYS_TGYbv_UFriZ_ZA";
+  mapboxgl.accessToken = "pk.eyJ1IjoiZ2V0cGxhY2UiLCJhIjoiY2tzNG1zM2NiMnBnaDJwczdpZHE2aXhtZyJ9.1ZzWC4AMI2rHRCDs_IKseg";
   mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js');
   
   var CLUSTER_RADIUS_NORMAL = [
@@ -169,6 +169,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
         'icon-anchor': 'bottom',
         'icon-allow-overlap': true,
         'text-field': ['get', 'priceShort'],
+        'text-allow-overlap': true,
         'text-font': [
           'Open Sans Semibold',
           'Arial Unicode MS Bold'
