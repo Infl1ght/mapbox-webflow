@@ -111,7 +111,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
       type: 'geojson',
       data: coordsToFeatureCollection(objectsToShow),
       cluster: true,
-      clusterMaxZoom: 14, // Max zoom to cluster points on
+      clusterMaxZoom: 16, // Max zoom to cluster points on
       clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
     });
     map.addSource('objects-without-clusters', {
@@ -340,5 +340,6 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
 
   return {
     changeObjectsList,
+    map,
   };
 };
