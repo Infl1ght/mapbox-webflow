@@ -1,4 +1,4 @@
-var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
+var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCallback) => {
   var abbreviateNumber = (valueUnparsed) => {
     var value = valueUnparsed;
     if(typeof valueUnparsed === 'string') {
@@ -60,7 +60,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
 
   mapboxgl.accessToken = "pk.eyJ1IjoiZ2V0cGxhY2UiLCJhIjoiY2tzNG1zM2NiMnBnaDJwczdpZHE2aXhtZyJ9.1ZzWC4AMI2rHRCDs_IKseg";
   mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js');
-  
+
   var CLUSTER_RADIUS_NORMAL = [
     'step',
     ['get', 'point_count'],
@@ -104,6 +104,24 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
     center: [34.825624, 32.029848],
     zoom: 11,
   });
+
+  let polygon;
+
+  const draw = new MapboxDraw({
+    displayControlsDefault: false,
+    controls: {
+      polygon: true,
+      trash: true
+    },
+    defaultMode: 'draw_polygon'
+  });
+  map.on('draw.create', (e) => {
+    polygon = e.features[0];
+  });
+  map.on('draw.update', (e) => {
+    polygon = e.features[0];
+  })
+  map.addControl(draw);
 
   var onMapLoaded = () => {
     map.addControl(new MapboxLanguage());
@@ -275,6 +293,10 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
       );
       map.setLayoutProperty('cluster-count', 'text-size', 12);
     });
+
+    if (mapLoadedCallback && typeof mapLoadedCallback === 'function') {
+      mapLoadedCallback();
+    }
   };
   map.on('load', onMapLoaded);
 
@@ -293,10 +315,16 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
     if(!map.loaded()) {
       return [];
     }
-    var features = map.queryRenderedFeatures({ layers: ['items-unvisible'] });
-    var ids = features.map(o => o.id);
-    var filteredDuplicates = features.filter(({id}, index) => !ids.includes(id, index + 1));
-    var filteredIds = filteredDuplicates.map((obj) => obj.id);
+    const features = map.queryRenderedFeatures({ layers: ['items-unvisible'] });
+    const ids = features.map(o => o.id);
+    let filtered = features.filter(({id}, index) => !ids.includes(id, index + 1));
+    
+    if (polygon) {
+      filtered = filtered.filter((feature) => {
+        return turf.booleanPointInPolygon(feature.geometry.coordinates, polygon);
+      });
+    }
+    var filteredIds = filtered.map((obj) => obj.id);
     return filteredIds;
   }
 
@@ -338,8 +366,20 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback) => {
     }
   };
 
+  const setAddingPolygonMode = () => {
+    draw.deleteAll();
+    draw.changeMode('draw_polygon');
+  }
+
+  const clearPolygon = () => {
+    draw.deleteAll();
+    polygon = undefined;
+  }
+
   return {
     changeObjectsList,
     map,
+    setAddingPolygonMode,
+    clearPolygon
   };
 };

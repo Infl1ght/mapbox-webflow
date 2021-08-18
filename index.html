@@ -1,10 +1,15 @@
 <html>
 <body>
-<div id='map' style='width: 100%; height: 100%;'></div>
+  <div id='map' style='width: 100%; height: 100%;'>
+    <button type="button" onclick="globalMap.setAddingPolygonMode()" style="position: absolute; top: 10px; left: 10px; z-index: 2;">Add polygon</button>
+    <button type="button" onclick="globalMap.clearPolygon()" style="position: absolute; top: 40px; left: 10px; z-index: 2;">Remove polygon</button>
+  </div>
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
 <link href='./mapbox-webflow.css' rel='stylesheet' />
 <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
 <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-language/v0.10.1/mapbox-gl-language.js'></script>
+<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.js'></script>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 <script src='./mapbox-webflow.js'></script>
 
 <script>
@@ -20,7 +25,8 @@
   	    itemDiv.style.display = 'none';
       }
     });
-  });
+  },
+  () => { console.log('Map loaded!'); });
   var newCoords = [
     {lat: 34.13379, long: 31.160781, slug: 1, price: '2,324,423', squareMeters: '34', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3 },
     {lat: 34.282088, long: 32.257386, slug: 2, price: '3324423', squareMeters: '37', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2 },
