@@ -48,25 +48,10 @@
   ];
   globalMap.changeObjectsList(newCoords);
 
-  filterItemsByPrice = function() {
-    var itemsDivs = document.querySelectorAll('.map-card-property-item');
-    var newCoordinates = [];
-    itemsDivs.forEach((itemDiv) => {
-    	var slug = itemDiv.querySelector('.w-script input.jetboost-list-item').value;
-      var priceUnparsed = itemDiv.querySelector('.w-script input.object-price').value;
-      var price = parseFloat(priceUnparsed.replace(/,/g, ''));
-      if(price > 3000000 && price < 6000000) {
-        itemDiv.style.display = 'block';
-        var objectToShow = coordinates.find((obj) => obj.slug === slug);
-        if(objectToShow) {
-          newCoordinates.push(objectToShow);
-        }
-      } else {
-        itemDiv.style.display = 'none';
-      }
-    });
-    globalMap.changeObjectsList(newCoordinates);
-  }
+  setInterval(() => { 
+    const randomId = Math.round(Math.random() * 4 + 1);
+    globalMap.highlightObjectWithId(randomId);
+  }, 1000)
 </script>
 </body>
 </html>

@@ -394,10 +394,32 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
     polygon = undefined;
   }
 
+  const highlightObjectWithId = (id) => {
+    map.getCanvas().style.cursor = 'pointer';
+    map.setLayoutProperty(
+      'items', 
+      'icon-size', 
+      ['match', ['id'], parseFloat(id), 0.8, 0.7],
+    );
+    map.setLayoutProperty(
+      'items', 
+      'text-size', 
+      ['match', ['id'], parseFloat(id), 13, 12],
+    );
+  }
+
+  const resetObjectHighlighting = () => {
+    map.getCanvas().style.cursor = '';
+    map.setLayoutProperty('items', 'icon-size', 0.7);
+    map.setLayoutProperty('items', 'text-size', 12);
+  }
+
   return {
     changeObjectsList,
     map,
     setAddingPolygonMode,
-    clearPolygon
+    clearPolygon,
+    highlightObjectWithId,
+    resetObjectHighlighting
   };
 };
