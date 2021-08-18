@@ -106,21 +106,37 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
   });
 
   let polygon;
+  let objectsList;
 
   const draw = new MapboxDraw({
     displayControlsDefault: false,
-    controls: {
-      polygon: true,
-      trash: true
-    },
-    defaultMode: 'draw_polygon'
   });
-  map.on('draw.create', (e) => {
+
+  const showItemsOnlyInPolygon = (e) => {
     polygon = e.features[0];
-  });
-  map.on('draw.update', (e) => {
-    polygon = e.features[0];
-  })
+    if (polygon) {
+      // const visibleIds = getVisibleMarkers();
+      // console.log(visibleIds);
+
+      const objectsInPolygon = objectsList.filter((mapObject) => {
+        return turf.booleanPointInPolygon([mapObject.lat, mapObject.long], polygon);
+      });
+      map.getSource('objects').setData(coordsToFeatureCollection(objectsInPolygon));
+      map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsInPolygon));
+
+      // map.setFilter('items', ["all", ['!', ['has', 'point_count']], ["match", ["id"], visibleIds, true, false]] );
+      // map.setFilter('clusters', ["all", ['!', ['has', 'point_count']], ["match", ["id"], visibleIds, true, false]] );
+      // map.setFilter('clusters-shadow', ["all", ['!', ['has', 'point_count']], ["match", ["id"], visibleIds, true, false]] );
+      // map.setFilter('cluster-count', ["all", ['!', ['has', 'point_count']], ["match", ["id"], visibleIds, true, false]] );
+    } else {
+      // map.setFilter('items', null);
+      map.getSource('objects').setData(coordsToFeatureCollection(objectsList));
+      map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsList));
+    }
+  }
+
+  map.on('draw.create', showItemsOnlyInPolygon);
+  map.on('draw.update', showItemsOnlyInPolygon)
   map.addControl(draw);
 
   var onMapLoaded = () => {
@@ -350,11 +366,11 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
 
   var changeObjectsList = function(newList) {
     var setSourceData = () => {
-      newObjectsListFiltered = newList.filter((mapObject) => mapObject.lat && mapObject.long);
-      map.getSource('objects').setData(coordsToFeatureCollection(newObjectsListFiltered));
-      map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(newObjectsListFiltered));
+      objectsList = newList.filter((mapObject) => mapObject.lat && mapObject.long);
+      map.getSource('objects').setData(coordsToFeatureCollection(objectsList));
+      map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsList));
       renderedObjectsChangedCallback(visibleMarkersIds);
-      centerMap(newObjectsListFiltered);
+      centerMap(objectsList);
     }
 
     if(!map.loaded()) {
@@ -373,6 +389,8 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
 
   const clearPolygon = () => {
     draw.deleteAll();
+    map.getSource('objects').setData(coordsToFeatureCollection(objectsList));
+    map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsList));
     polygon = undefined;
   }
 
