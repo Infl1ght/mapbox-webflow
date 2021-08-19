@@ -180,9 +180,14 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
       },
     });
     
-    let img = new Image(50, 30);
-    img.onload = () => map.addImage('marker-with-price', img);
-    img.src = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAgMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTSAxLjUxMzAwMDAxMTQ0NDA5MTggMSBMIDEuMzQ3MDAwMDAyODYxMDIzIDI0Ljg3NDAwMDU0OTMxNjQwNiBMIDIyLjEzMjk5OTQyMDE2NjAxNiAyNC44NzQwMDA1NDkzMTY0MDYgTCAyNS4xMzgwMDA0ODgyODEyNSAyOS4yMTUwMDAxNTI1ODc4OSBMIDI2Ljk3NDAwMDkzMDc4NjEzMyAyNC42MjQwMDA1NDkzMTY0MDYgTCA0OC43NjIwMDEwMzc1OTc2NTYgMjQuNzA3MDAwNzMyNDIxODc1IEwgNDguNjc5MDAwODU0NDkyMTkgMS4xNjYwMDAwMDg1ODMwNjg4IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwLCAwLCAwKTsgZmlsbDogIzAyODc1MjsiLz4KPC9zdmc+";
+    let markerImage = new Image(50, 30);
+    markerImage.onload = () => map.addImage('marker-with-price', markerImage);
+    markerImage.src = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAgMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTSAxLjUxMzAwMDAxMTQ0NDA5MTggMSBMIDEuMzQ3MDAwMDAyODYxMDIzIDI0Ljg3NDAwMDU0OTMxNjQwNiBMIDIyLjEzMjk5OTQyMDE2NjAxNiAyNC44NzQwMDA1NDkzMTY0MDYgTCAyNS4xMzgwMDA0ODgyODEyNSAyOS4yMTUwMDAxNTI1ODc4OSBMIDI2Ljk3NDAwMDkzMDc4NjEzMyAyNC42MjQwMDA1NDkzMTY0MDYgTCA0OC43NjIwMDEwMzc1OTc2NTYgMjQuNzA3MDAwNzMyNDIxODc1IEwgNDguNjc5MDAwODU0NDkyMTkgMS4xNjYwMDAwMDg1ODMwNjg4IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwLCAwLCAwKTsgZmlsbDogIzAyODc1MjsiLz4KPC9zdmc+";
+    
+    let markerSelectedImage = new Image(50, 30);
+    markerSelectedImage.onload = () => map.addImage('marker-with-price-selected', markerSelectedImage);
+    markerSelectedImage.src = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAgMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTSAxLjUxMzAwMDAxMTQ0NDA5MTggMSBMIDEuMzQ3MDAwMDAyODYxMDIzIDI0Ljg3NDAwMDU0OTMxNjQwNiBMIDIyLjEzMjk5OTQyMDE2NjAxNiAyNC44NzQwMDA1NDkzMTY0MDYgTCAyNS4xMzgwMDA0ODgyODEyNSAyOS4yMTUwMDAxNTI1ODc4OSBMIDI2Ljk3NDAwMDkzMDc4NjEzMyAyNC42MjQwMDA1NDkzMTY0MDYgTCA0OC43NjIwMDEwMzc1OTc2NTYgMjQuNzA3MDAwNzMyNDIxODc1IEwgNDguNjc5MDAwODU0NDkyMTkgMS4xNjYwMDAwMDg1ODMwNjg4IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwLCAwLCAwKTsgZmlsbDogIzQwMkE5MDsiLz4KPC9zdmc+";
+
     map.addLayer({
       id: 'items',
       type: 'symbol',
@@ -252,7 +257,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
       source: 'objects-without-clusters',
       filter: false,
       layout: {
-        'icon-image': 'marker-with-price',
+        'icon-image': 'marker-with-price-selected',
         'icon-size': 0.9,
         'icon-anchor': 'bottom',
         'icon-allow-overlap': true,
@@ -423,6 +428,11 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
         'text-size', 
         ['match', ['id'], parseFloat(id), 15, 12],
       );
+      map.setLayoutProperty(
+        'items', 
+        'icon-image', 
+        ['match', ['id'], parseFloat(id), 'marker-with-price-selected', 'marker-with-price'],
+      );
     } else {
       const featuresUnvisible = map.queryRenderedFeatures({ layers: ['items-unvisible'] });
       if (featuresUnvisible.find(feature => feature.id === parseFloat(id))) {
@@ -438,6 +448,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
     map.getCanvas().style.cursor = '';
     map.setLayoutProperty('items', 'icon-size', 0.7);
     map.setLayoutProperty('items', 'text-size', 12);
+    map.setLayoutProperty('items', 'icon-image', 'marker-with-price');
     map.setFilter('items-in-clusters', false);
   }
 
