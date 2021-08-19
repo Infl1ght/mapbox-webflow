@@ -115,21 +115,12 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
   const showItemsOnlyInPolygon = (e) => {
     polygon = e.features[0];
     if (polygon) {
-      // const visibleIds = getVisibleMarkers();
-      // console.log(visibleIds);
-
       const objectsInPolygon = objectsList.filter((mapObject) => {
         return turf.booleanPointInPolygon([mapObject.lat, mapObject.long], polygon);
       });
       map.getSource('objects').setData(coordsToFeatureCollection(objectsInPolygon));
       map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsInPolygon));
-
-      // map.setFilter('items', ["all", ['!', ['has', 'point_count']], ["match", ["id"], visibleIds, true, false]] );
-      // map.setFilter('clusters', ["all", ['!', ['has', 'point_count']], ["match", ["id"], visibleIds, true, false]] );
-      // map.setFilter('clusters-shadow', ["all", ['!', ['has', 'point_count']], ["match", ["id"], visibleIds, true, false]] );
-      // map.setFilter('cluster-count', ["all", ['!', ['has', 'point_count']], ["match", ["id"], visibleIds, true, false]] );
     } else {
-      // map.setFilter('items', null);
       map.getSource('objects').setData(coordsToFeatureCollection(objectsList));
       map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsList));
     }
@@ -221,12 +212,12 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
       map.setLayoutProperty(
         'items', 
         'icon-size', 
-        ['match', ['id'], e.features[0].id, 0.8, 0.7],
+        ['match', ['id'], e.features[0].id, 0.9, 0.7],
       );
       map.setLayoutProperty(
         'items', 
         'text-size', 
-        ['match', ['id'], e.features[0].id, 13, 12],
+        ['match', ['id'], e.features[0].id, 15, 12],
       );
     });
     map.on('mouseleave', 'items', (e) => {
@@ -254,6 +245,30 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
       paint: {
         'circle-radius': 0,
       },
+    });
+    map.addLayer({
+      id: 'items-in-clusters',
+      type: 'symbol',
+      source: 'objects-without-clusters',
+      filter: false,
+      layout: {
+        'icon-image': 'marker-with-price',
+        'icon-size': 0.9,
+        'icon-anchor': 'bottom',
+        'icon-allow-overlap': true,
+        'text-field': ['get', 'priceShort'],
+        'text-allow-overlap': true,
+        'text-font': [
+          'Open Sans Semibold',
+          'Arial Unicode MS Bold'
+        ],
+        'text-offset': [0, -0.4],
+        'text-size': 15,
+        'text-anchor': 'bottom',
+      },
+      paint: {
+        "text-color": "#ffffff"
+      }
     });
     map.on('click', 'clusters', (e) => {
       var features = map.queryRenderedFeatures(e.point, {
@@ -395,23 +410,35 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
   }
 
   const highlightObjectWithId = (id) => {
-    map.getCanvas().style.cursor = 'pointer';
-    map.setLayoutProperty(
-      'items', 
-      'icon-size', 
-      ['match', ['id'], parseFloat(id), 0.8, 0.7],
-    );
-    map.setLayoutProperty(
-      'items', 
-      'text-size', 
-      ['match', ['id'], parseFloat(id), 13, 12],
-    );
+    const featuresItems = map.queryRenderedFeatures({ layers: ['items'] });
+    if (featuresItems.find(feature => feature.id === parseFloat(id))) {
+      map.getCanvas().style.cursor = 'pointer';
+      map.setLayoutProperty(
+        'items', 
+        'icon-size', 
+        ['match', ['id'], parseFloat(id), 0.9, 0.7],
+      );
+      map.setLayoutProperty(
+        'items', 
+        'text-size', 
+        ['match', ['id'], parseFloat(id), 15, 12],
+      );
+    } else {
+      const featuresUnvisible = map.queryRenderedFeatures({ layers: ['items-unvisible'] });
+      if (featuresUnvisible.find(feature => feature.id === parseFloat(id))) {
+        map.setFilter(
+          'items-in-clusters', 
+          ['match', ['id'], parseFloat(id), true, false]
+        );
+      }
+    }
   }
 
   const resetObjectHighlighting = () => {
     map.getCanvas().style.cursor = '';
     map.setLayoutProperty('items', 'icon-size', 0.7);
     map.setLayoutProperty('items', 'text-size', 12);
+    map.setFilter('items-in-clusters', false);
   }
 
   return {
