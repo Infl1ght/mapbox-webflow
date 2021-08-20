@@ -1,4 +1,10 @@
-var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCallback) => {
+import mapboxgl from 'mapbox-gl';
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import turfBooleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import MapboxLanguage from '@mapbox/mapbox-gl-language';
+import NewPolygonDraw from './new-polygon-draw.js';
+
+module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCallback) => {
   var abbreviateNumber = (valueUnparsed) => {
     var value = valueUnparsed;
     if(typeof valueUnparsed === 'string') {
@@ -21,7 +27,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
   }
 
   var coordsToFeatureCollection = (mapObjects) => {
-    featureCollection = [];
+    const featureCollection = [];
     for(var mapObject of mapObjects) {
       featureCollection.push({
         "type": "Feature",
@@ -107,16 +113,19 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
 
   let polygon;
   let objectsList;
-
+ 
   const draw = new MapboxDraw({
     displayControlsDefault: false,
+    modes: Object.assign({
+      new_draw_polygon: NewPolygonDraw,
+    }, MapboxDraw.modes),
   });
-
+  
   const showItemsOnlyInPolygon = (e) => {
     polygon = e.features[0];
     if (polygon) {
       const objectsInPolygon = objectsList.filter((mapObject) => {
-        return turf.booleanPointInPolygon([mapObject.lat, mapObject.long], polygon);
+        return turfBooleanPointInPolygon([mapObject.lat, mapObject.long], polygon);
       });
       map.getSource('objects').setData(coordsToFeatureCollection(objectsInPolygon));
       map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsInPolygon));
@@ -131,7 +140,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
   map.addControl(draw);
 
   var onMapLoaded = () => {
-    map.addControl(new MapboxLanguage());
+    map.addControl(new MapboxLanguage({ defaultLanguage: 'mul' }));
     map.addSource('objects', {
       type: 'geojson',
       data: coordsToFeatureCollection(objectsToShow),
@@ -344,20 +353,18 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
     objects.forEach((object) => {
       bounds.extend([object.lat, object.long]);
     });
+
     map.fitBounds(bounds, { padding: 150, pitch: 0, bearing: 0 });
   }
 
   function getVisibleMarkers() {
-    if(!map.loaded()) {
-      return [];
-    }
     const features = map.queryRenderedFeatures({ layers: ['items-unvisible'] });
     const ids = features.map(o => o.id);
     let filtered = features.filter(({id}, index) => !ids.includes(id, index + 1));
     
     if (polygon) {
       filtered = filtered.filter((feature) => {
-        return turf.booleanPointInPolygon(feature.geometry.coordinates, polygon);
+        return turfBooleanPointInPolygon(feature.geometry.coordinates, polygon);
       });
     }
     var filteredIds = filtered.map((obj) => obj.id);
@@ -404,7 +411,7 @@ var initMap = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedCall
 
   const setAddingPolygonMode = () => {
     draw.deleteAll();
-    draw.changeMode('draw_polygon');
+    draw.changeMode('new_draw_polygon');
   }
 
   const clearPolygon = () => {
