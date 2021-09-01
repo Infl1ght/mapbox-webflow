@@ -4,12 +4,46 @@
     <button type="button" onclick="globalMap.setAddingPolygonMode()" style="position: absolute; top: 10px; left: 10px; z-index: 2;">Add polygon</button>
     <button type="button" onclick="globalMap.clearPolygon()" style="position: absolute; top: 40px; left: 10px; z-index: 2;">Remove polygon</button>
   </div>
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
 <link href='./mapbox-webflow.css' rel='stylesheet' />
 <script src='./dist/mapbox-webflow.js'></script>
-
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-  coordinates = []
+  properties = [];
+  const cities = {};
+  const neighborhoods = {};
+  (async function () {
+    console.time('fetchingFromFirebase');
+    const responsePropertiesCitiesNeighborhoods = await axios.get('https://europe-west1-getplace-2451e.cloudfunctions.net/getPropertiesCitiesNeighborhoods', { timeout: 10000 });
+    console.timeEnd('fetchingFromFirebase');
+  
+    const itemsRaw = responsePropertiesCitiesNeighborhoods.data.properties.filter((item) => !item['_draft']);
+    responsePropertiesCitiesNeighborhoods.data.cities.forEach(cityItem => cities[cityItem._id] = cityItem.name);
+    responsePropertiesCitiesNeighborhoods.data.neighborhoods.forEach(neighborhoodItem => neighborhoods[neighborhoodItem._id] = neighborhoodItem.name);
+    itemsRaw.forEach((item) => {
+      properties.push({
+        slug: item.slug,
+        lat: item.latitude,
+        long: item.longitude,
+        price: item.price,
+        priceParsed: parseFloat(item.price.replace(/[^0-9]/g, "")),
+        squareMeters: item['size-of-block'],
+        neighborhood: neighborhoods[item['property-neighborhood']] ? neighborhoods[item['property-neighborhood']] : '',
+        city: cities[item.city] ? cities[item.city] : item.city,
+        address: item.address,
+        imageUrl: item['thumbnail-image'] ? item['thumbnail-image'].url : '',
+        objectUrl: '/properties/' + item.slug,
+        countRooms: item['number-of-bedrooms'],
+        bedrooms: item['number-of-bedrooms'],
+        bathrooms: item['number-of-bathrooms'],
+        priceSqm: item['price-sqm'],
+        floor: item.floor,
+        isNew: item['feature-new']
+      });
+    });
+    globalMap.changeObjectsList(properties);
+  })();
   globalMap = initMap(undefined, (visibleMarkers) => {
     console.log(visibleMarkers);
     var itemsDivs = document.querySelectorAll('.map-card-property-item');
@@ -21,33 +55,17 @@
   	    itemDiv.style.display = 'none';
       }
     });
-  },
-  () => { console.log('Map loaded!'); });
-  var newCoords = [
-    {lat: 34.13379, long: 31.160781, slug: 1, price: '2,324,423', squareMeters: '34', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3 },
-    {lat: 34.282088, long: 32.257386, slug: 2, price: '3324423', squareMeters: '37', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2 },
-    {lat: 34.385049, long: 31.355724, slug: 3, price: '4324423', squareMeters: '38', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bathrooms: 3},
-    {lat: 34.414208, long: 31.408244, slug: 4, price: '5324423', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254'},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {lat: 34.511402, long: 32.551693, slug: 5, price: 6324423, squareMeters: '343', imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254', bedrooms: 2, bathrooms: 3},
-    {slug: 6, price: 6324423, imageUrl: 'https://picsum.photos/id/11/10/6', address: 'הגדוד העברי 57', objectUrl: 'https://getplace-new.webflow.io/properties/967269894254'},
-  ];
-  globalMap.changeObjectsList(newCoords);
+  });
+  
+  globalMap.map.on('load', () => { 
+  	globalMap.changeObjectsList(properties);
+  });
+  globalMap.changeObjectsList(properties);
 
-  setInterval(() => { 
-    const randomId = Math.round(Math.random() * 4 + 1);
-    globalMap.highlightObjectWithId(randomId);
-  }, 1000)
+  // setInterval(() => { 
+  //   const randomId = Math.round(Math.random() * 4 + 1);
+  //   globalMap.highlightObjectWithId(randomId);
+  // }, 1000)
 </script>
 </body>
 </html>
