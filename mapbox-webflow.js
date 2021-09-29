@@ -46,11 +46,11 @@ module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedC
             <div>
               <img src="${mapObject.imageUrl}" style="object-fit: cover; width: 110px; height: 89px;" />
             </div>
-            <div style="display: flex; flex-direction: column; padding: 5px; padding-left: 10px; width: 200px;">
+            <div style="display: flex; flex-direction: column; padding: 5px; padding-left: 10px; width: 200px; align-items: flex-end;">
               <div style="height: 40px; font-weight: 600;">
                 ${mapObject.address}
               </div>
-              <div>
+              <div style="text-align: end;">
                 <div>₪${mapObject.price}</div>
                 <div style="font-size: 14px; padding-top: 5px;">
                   <div style="direction: rtl; display: inline-block;">${mapObject.bedrooms ? '| ' + mapObject.bedrooms + ' חד׳' : ''}</div>
@@ -127,7 +127,9 @@ module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedC
   });
   
   const showItemsOnlyInPolygon = (e) => {
-    polygon = e.features[0];
+    if (e) {
+      polygon = e.features[0];
+    }
     if (polygon) {
       const objectsInPolygon = objectsList.filter((mapObject) => {
         return turfBooleanPointInPolygon([mapObject.long, mapObject.lat], polygon);
@@ -137,6 +139,7 @@ module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedC
     } else {
       map.getSource('objects').setData(coordsToFeatureCollection(objectsList));
       map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsList));
+      centerMap(objectsList);
     }
     setTimeout(()=> updateVisibleMarkers(), 500);
   }
@@ -153,7 +156,7 @@ module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedC
       data: coordsToFeatureCollection(objectsToShow),
       cluster: true,
       clusterMaxZoom: 19, // Max zoom to cluster points on
-      clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+      clusterRadius: 45, // Radius of each cluster when clustering points (defaults to 50)
     });
     map.addSource('objects-without-clusters', {
       type: 'geojson',
@@ -224,7 +227,7 @@ module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedC
         'icon-size': 0.8,
         'icon-anchor': 'bottom',
         'icon-allow-overlap': true,
-        'text-field': '{point_count_abbreviated} Listings',
+        'text-field': '{point_count_abbreviated} נכסים',
         'text-allow-overlap': true,
         'text-font': [
           'Open Sans Semibold',
@@ -392,8 +395,6 @@ module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedC
 
       // Get all points under a cluster
       clusterSource.getClusterLeaves(clusterId, point_count, 0, function(err, aFeatures){
-        console.log('getClusterLeaves', err, aFeatures);
-
         let coordinates = aFeatures[0].geometry.coordinates.slice();
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
@@ -477,10 +478,9 @@ module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedC
   var changeObjectsList = function(newList) {
     if(map && map.getSource('objects') && map.getSource('objects-without-clusters')) {
       objectsList = newList.filter((mapObject) => mapObject.lat && mapObject.long);
-      map.getSource('objects').setData(coordsToFeatureCollection(objectsList));
-      map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsList));
-      setTimeout(()=> updateVisibleMarkers(), 500);
-      centerMap(objectsList);
+      // map.getSource('objects').setData(coordsToFeatureCollection(objectsList));
+      // map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsList));
+      showItemsOnlyInPolygon();
     }
   };
 
@@ -495,6 +495,10 @@ module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedC
     map.getSource('objects-without-clusters').setData(coordsToFeatureCollection(objectsList));
     polygon = undefined;
     setTimeout(()=> updateVisibleMarkers(), 500);
+  }
+
+  const getPolygon = () => {
+    return polygon;
   }
 
   const highlightObjectWithId = (id) => {
@@ -540,6 +544,7 @@ module.exports = (objectsToShow = [], renderedObjectsChangedCallback, mapLoadedC
     changeObjectsList,
     setAddingPolygonMode,
     clearPolygon,
+    getPolygon,
     highlightObjectWithId,
     resetObjectHighlighting
   };
